@@ -62,9 +62,9 @@ begin
     Writeln;
 
     // Set a port mapping
-    if UPnP.SetPortMapping(UPnP.InternalIP, 8081, 8000) then // use own computer IP
+    if UPnP.SetPortMapping(UPnP.InternalIP, 8081, 8000, 'TCP') then // use own computer IP
     begin
-      if UPnP.GetSpecificPortMapping(8001, 'TCP').InternalClient = UPnP.InternalIP then
+      if UPnP.GetSpecificPortMapping(8000, 'TCP').InternalClient = UPnP.InternalIP then
         Writeln('SetPortMapping OK')
       else
         writeln('SetPortMapping reports OK but Port does not seem to be forwarded');
