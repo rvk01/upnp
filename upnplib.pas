@@ -38,10 +38,12 @@ type
   public
     constructor Create(const RouterIP: string);
     function IsUPnPAvailable: boolean;
+    function GetStatusInfo(out ConnectionStatus: String; out LastError: String; out Uptime: Integer): Boolean;
     function GetLastResultCode: integer;
     function GetLastResponse: string;
     function SetPortMapping(const InternalIP: string; InternalPort, ExternalPort: integer; Protocol: string = 'TCP'; Description: string = ''): boolean;
     function DeletePortMapping(const ExternalPort: integer; Protocol: string = 'TCP'): boolean;
+    function GetSpecificPortMapping(const ExternalPort: integer; Protocol: string = 'TCP'): TPortMapping;
     function RefreshPortMapping: boolean;
     property InternalIP: string read GetInternalIP;
     property ExternalIP: string read GetExternalIP;
@@ -105,7 +107,7 @@ begin
       if Pos('LOCATION: ', uppercase(S)) > 0 then
       begin
         Location := Copy(S, Pos('LOCATION:', uppercase(S)) + 9);
-        Location := Trim(Copy(Location, 1, Pos(#13#10, Location) - 1));
+        Location := Trim(Copy(Location, 1, Pos(crlf, Location) - 1));
         Response := TStringList.Create;
         try
 
@@ -228,9 +230,32 @@ begin
 
 end;
 
+function TUPnP.GetStatusInfo(out ConnectionStatus: String; out LastError: String; out Uptime: Integer): Boolean;
+var
+  SoapRequest: string;
+begin
+  SoapRequest :=
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">' +
+    '<s:Body>' +
+    '<u:GetStatusInfo xmlns:u="' + FServiceType + '">' +
+    '</u:GetStatusInfo>' +
+    '</s:Body>' +
+    '</s:Envelope>';
+
+  ExecuteSoapAction('GetStatusInfo', SoapRequest);
+
+  ConnectionStatus :=  GetStringBetweenAndStrip(FResponse, '<NewConnectionStatus>', '</NewConnectionStatus>');
+  LastError :=  GetStringBetweenAndStrip(FResponse, '<NewLastConnectionError>', '</NewLastConnectionError>');
+  Uptime :=  StrToIntDef(GetStringBetweenAndStrip(FResponse, '<NewUptime>', '</NewUptime>'), 0);
+
+  Result := FResultCode = 200;
+
+end;
+
 function TUPnP.SetPortMapping(const InternalIP: string; InternalPort, ExternalPort: integer; Protocol: string = 'TCP'; Description: string = ''): boolean;
 var
-  SoapRequest, SoapResponse: string;
+  SoapRequest: string;
 begin
   SoapRequest :=
     '<?xml version="1.0" encoding="utf-8"?>' +
@@ -275,6 +300,50 @@ begin
 
 end;
 
+function FillPortMapping(Found1: String): TPortMapping;
+begin
+  Result.RemoteHost := GetStringBetweenAndStrip(Found1, '<NewRemoteHost>', '</NewRemoteHost>');
+  Result.ExternalPort := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewExternalPort>', '</NewExternalPort>'), 0);
+  Result.Protocol := GetStringBetweenAndStrip(Found1, '<NewProtocol>', '</NewProtocol>');
+  Result.InternalPort := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewInternalPort>', '</NewInternalPort>'), 0);
+  Result.InternalClient := GetStringBetweenAndStrip(Found1, '<NewInternalClient>', '</NewInternalClient>');
+  Result.Enabled := GetStringBetweenAndStrip(Found1, '<NewEnabled>', '<NewEnabled>') = '1';
+  Result.Description := GetStringBetweenAndStrip(Found1, '<NewPortMappingDescription>', '</NewPortMappingDescription>');
+  Result.LeaseDuration := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewLeaseDuration>', '</NewLeaseDuration>'), 0);
+end;
+
+function TUPnP.GetSpecificPortMapping(const ExternalPort: integer; Protocol: string = 'TCP'): TPortMapping;
+var
+  SoapRequest: string;
+  Found1: string;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+
+  SoapRequest :=
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">' +
+    '<s:Body>' +
+    '<u:GetSpecificPortMappingEntry xmlns:u="' + FServiceType + '">' +
+    '<NewRemoteHost></NewRemoteHost>' +
+    '<NewExternalPort>' + IntToStr(ExternalPort) + '</NewExternalPort>' +
+    '<NewProtocol>' + Protocol + '</NewProtocol>' +
+    '</u:GetSpecificPortMappingEntry>' +
+    '</s:Body>' +
+    '</s:Envelope>';
+
+  ExecuteSoapAction('GetSpecificPortMappingEntry', SoapRequest);
+
+  if FResultCode = 200 then
+  begin
+    Found1 := GetStringBetweenAndStrip(FResponse, '<u:GetSpecificPortMappingEntryResponse', '</u:GetSpecificPortMappingEntryResponse>');
+    if Found1 <> '' then
+    begin
+      Result := FillPortMapping(Found1);
+    end;
+  end;
+
+end;
+
 function TUPnP.RefreshPortMapping: boolean;
 var
   SoapRequest: string;
@@ -305,14 +374,7 @@ begin
       Found1 := GetStringBetweenAndStrip(FResponse, '<u:GetGenericPortMappingEntryResponse', '</u:GetGenericPortMappingEntryResponse>');
       if Found1 <> '' then
       begin
-        Map.RemoteHost := GetStringBetweenAndStrip(Found1, '<NewRemoteHost>', '</NewRemoteHost>');
-        Map.ExternalPort := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewExternalPort>', '</NewExternalPort>'), 0);
-        Map.Protocol := GetStringBetweenAndStrip(Found1, '<NewProtocol>', '</NewProtocol>');
-        Map.InternalPort := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewInternalPort>', '</NewInternalPort>'), 0);
-        Map.InternalClient := GetStringBetweenAndStrip(Found1, '<NewInternalClient>', '</NewInternalClient>');
-        Map.Enabled := GetStringBetweenAndStrip(Found1, '<NewEnabled>', '<NewEnabled>') = '1';
-        Map.Description := GetStringBetweenAndStrip(Found1, '<NewPortMappingDescription>', '</NewPortMappingDescription>');
-        Map.LeaseDuration := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewLeaseDuration>', '</NewLeaseDuration>'), 0);
+        Map := FillPortMapping(Found1);
         SetLength(FPortMappings, Length(FPortMappings) + 1);
         FPortMappings[Length(FPortMappings) - 1] := Map;
       end;
