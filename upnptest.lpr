@@ -18,7 +18,7 @@ var
     // Refresh the portmappings array
     if not UPnP.RefreshPortMapping then
       Writeln('Error RefreshPortMapping' + LineEnding +
-        'ResultCode: ' + UPNP.GetLastResultCode.ToString + LineEnding + UPnP.GetLastResponse);
+        'ResultCode: ' + UPNP.LastResultCode.ToString + LineEnding + UPnP.LastResponse);
 
     // Print out the Port mappings
     if Length(UPnP.PortMappings) > 0 then
@@ -36,20 +36,17 @@ var
 
   end;
 
-const
-  Gateway = '192.168.2.1';
-
-
 var
   Status: string;
   LastError: string;
   Uptime: integer;
 begin
-  UPnP := TUPnP.Create(Gateway);
+  UPnP := TUPnP.Create('0.0.0.0');
 
   if UPnP.IsUPnPAvailable then
   begin
-    Writeln('UPnP is available.');
+    Writeln('UPnP device is available at ' + UPnP.ControlURL);
+
     UPnP.GetStatusInfo(Status, LastError, Uptime);
 
     Writeln;
@@ -81,7 +78,7 @@ begin
     begin
       Writeln;
       Writeln('Error SetPortMapping' + LineEnding +
-        'ResultCode: ' + UPNP.GetLastResultCode.ToString + LineEnding + UPnP.GetLastResponse);
+        'ResultCode: ' + UPNP.LastResultCode.ToString + LineEnding + UPnP.LastResponse);
       Writeln;
     end;
 
@@ -94,7 +91,7 @@ begin
     begin
       Writeln;
       Writeln('Error DeletePortMapping' + LineEnding +
-        'ResultCode: ' + UPNP.GetLastResultCode.ToString + LineEnding + UPnP.GetLastResponse);
+        'ResultCode: ' + UPNP.LastResultCode.ToString + LineEnding + UPnP.LastResponse);
       Writeln;
     end;
 

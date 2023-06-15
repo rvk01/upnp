@@ -8,23 +8,20 @@
       <Unit>
         <Filename Value="upnptest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="42"/>
-        <CursorPos X="32" Y="57"/>
-        <UsageCount Value="24"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="31"/>
+        <CursorPos Y="49"/>
+        <UsageCount Value="25"/>
       </Unit>
       <Unit>
         <Filename Value="upnplib.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="233"/>
-        <CursorPos X="21" Y="257"/>
-        <UsageCount Value="24"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="25"/>
         <Bookmarks Count="1">
-          <Item0 X="2" Y="253" ID="1"/>
+          <Item0 X="2" Y="244" ID="1"/>
         </Bookmarks>
-        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="Q:\dev32\fpc\rtl\win\syswinh.inc"/>
@@ -56,130 +53,15 @@
       <Unit>
         <Filename Value="Q:\dev32\config\onlinepackagemanager\packages\synapse40.1\blcksock.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="2669"/>
-        <CursorPos X="35" Y="2695"/>
+        <TopLine Value="417"/>
+        <CursorPos X="15" Y="434"/>
         <UsageCount Value="10"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="258" TopLine="238"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="45" Column="14" TopLine="25"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="354" Column="16" TopLine="334"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="313" TopLine="291"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="293" Column="14" TopLine="293"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="274" Column="14" TopLine="242"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="316" Column="10" TopLine="299"/>
-      </Position>
-      <Position>
-        <Filename Value="upnptest.lpr"/>
-        <Caret Line="58" TopLine="37"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="304" TopLine="287"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="312" TopLine="287"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="34" TopLine="14"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="41" Column="21" TopLine="14"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="42" Column="21" TopLine="14"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="165" Column="23" TopLine="133"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="290" TopLine="289"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="218" Column="25" TopLine="186"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="237" Column="25" TopLine="205"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="111" Column="38" TopLine="82"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="53" Column="16" TopLine="21"/>
-      </Position>
-      <Position>
-        <Filename Value="upnptest.lpr"/>
-        <Caret Line="51" Column="28" TopLine="42"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="233" TopLine="215"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="41" Column="14" TopLine="18"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="256" TopLine="236"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="320" Column="18" TopLine="300"/>
-      </Position>
-      <Position>
-        <Filename Value="upnptest.lpr"/>
-        <Caret Line="56" Column="19" TopLine="43"/>
-      </Position>
-      <Position>
-        <Filename Value="upnplib.pas"/>
-        <Caret Line="41" Column="17" TopLine="21"/>
-      </Position>
-      <Position>
-        <Filename Value="upnptest.lpr"/>
-        <Caret Line="113" Column="4" TopLine="76"/>
-      </Position>
-    </JumpHistory>
+    <General>
+      <ActiveWindowIndexAtStart Value="-1"/>
+    </General>
+    <JumpHistory HistoryIndex="-1"/>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes ActiveMode=""/>

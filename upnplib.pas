@@ -24,34 +24,32 @@ type
 type
   TUPnP = class
   private
-    FRootXML: string;
     FBaseURL: string;
     FControlURL: string;
     FServiceType: string;
     FResponse: string;
     FResultCode: integer;
     FPortMappings: TPortMappings;
-    procedure Discover;
     function GetInternalIP: string;
     function GetExternalIP: string;
     procedure ExecuteSoapAction(const Action, SoapRequest: string);
   public
-    constructor Create(const RouterIP: string);
+    constructor Create(RouterIP: string = '');
     function IsUPnPAvailable: boolean;
-    function GetStatusInfo(out ConnectionStatus: String; out LastError: String; out Uptime: Integer): Boolean;
-    function GetLastResultCode: integer;
-    function GetLastResponse: string;
+    function GetStatusInfo(out ConnectionStatus: string; out LastError: string; out Uptime: integer): boolean;
     function SetPortMapping(const InternalIP: string; InternalPort, ExternalPort: integer; Protocol: string = 'TCP'; Description: string = ''): boolean;
     function DeletePortMapping(const ExternalPort: integer; Protocol: string = 'TCP'): boolean;
     function GetSpecificPortMapping(const ExternalPort: integer; Protocol: string = 'TCP'): TPortMapping;
     function RefreshPortMapping: boolean;
+
+    property ControlURL: string read FControlURL;
     property InternalIP: string read GetInternalIP;
     property ExternalIP: string read GetExternalIP;
+    property LastResultCode: integer read FResultCode;
+    property LastResponse: string read FResponse;
     property PortMappings: TPortMappings read FPortMappings write FPortMappings;
-  end;
 
-const
-  crlf = #13#10;
+  end;
 
 implementation
 
@@ -73,46 +71,48 @@ begin
   System.Delete(str, startPos, endPos - startPos);
 end;
 
-procedure TUPnP.Discover;
-begin
-  // yet to be implemented of RouterIP = '' or 0.0.0.0
-end;
-
-constructor TUPnP.Create(const RouterIP: string);
+constructor TUPnP.Create(RouterIP: string = ''); // '' = discover
 var
   Socket: TUDPBlockSocket;
   S, Location, Service: string;
   Response: TStringList;
   Cnt: integer;
 begin
-  FRootXML := '';
 
-  Cnt := 0;
+  Cnt := 0; // timeout counter, max 2 x 3 seconds
+  if (RouterIP = '0.0.0.0') or (RouterIP = '') then
+    RouterIP := '255.255.255.255'; // discover
 
-  S := 'M-SEARCH * HTTP/1.1' + crlf +
-    'HOST: 239.255.255.250:1900' + crlf +
-    'MAN: "ssdp:discover"' + crlf +
-    'MX: 3' + crlf +
-    'ST: upnp:rootdevice' + crlf + crlf;
 
+  S := 'M-SEARCH * HTTP/1.1' + CRLF +
+    'HOST: 239.255.255.250:1900' + CRLF +
+    'MAN: "ssdp:discover"' + CRLF +
+    'MX: 3' + CRLF +
+    'ST: upnp:rootdevice' + CRLF + CRLF;
+
+  Response := TStringList.Create;
   Socket := TUDPBlockSocket.Create;
-  Socket.EnableBroadcast(True);
-  Socket.Connect(RouterIP, '1900');
-  Socket.SendString(S);
-  repeat
-    Inc(Cnt);
-    if Socket.CanRead(3000) then
-    begin
-      S := Socket.RecvPacket(3000);
-      if Pos('LOCATION: ', uppercase(S)) > 0 then
+  try
+
+    Socket.EnableBroadcast(True);
+    Socket.Connect(RouterIP, '1900');
+    Socket.SendString(S);
+
+    repeat
+      Inc(Cnt);
+      if Socket.CanRead(3000) then
       begin
-        Location := Copy(S, Pos('LOCATION:', uppercase(S)) + 9);
-        Location := Trim(Copy(Location, 1, Pos(crlf, Location) - 1));
-        Response := TStringList.Create;
-        try
+        S := Socket.RecvPacket(3000);
+        if Pos('LOCATION: ', uppercase(S)) > 0 then
+        begin
+          // Found one. Reset timeout counter, if this is not the one then wait
+          Cnt := 0;
+
+          Location := Copy(S, Pos('LOCATION:', uppercase(S)) + 9);
+          Location := Trim(Copy(Location, 1, Pos(CRLF, Location) - 1));
 
           HttpGetText(Location, Response);
-          FRootXML := Response.Text;
+          S := Response.Text;
 
           FBaseURL := Location; // take base of Location for control
           while (FBaseURL <> '') and (Location[Length(FBaseURL)] <> '/') do Delete(FBaseURL, Length(FBaseURL), 1);
@@ -120,9 +120,10 @@ begin
 
           // loop all services
           repeat
-            Service := GetStringBetweenAndStrip(FRootXML, '<service>', '</service>');
+            Service := GetStringBetweenAndStrip(S, '<service>', '</service>');
             if Pos(uppercase(':WANIPConnection:'), uppercase(service)) > 0 then
             begin
+              // We found a WAN device
               S := GetStringBetweenAndStrip(Service, '<SCPDURL>', '</SCPDURL>');
               if S <> '' then
               begin
@@ -134,43 +135,33 @@ begin
                   FServiceType := GetStringBetweenAndStrip(Service, '<serviceType>', '</serviceType>');
                   S := GetStringBetweenAndStrip(Service, '<controlURL>', '</controlURL>');
                   FControlURL := FBaseURL + S;
+
+                  Cnt := 99;
+                  break; // only break on correct service
+
                 end;
               end;
             end;
+
           until service = '';
 
-          break;
-
-        finally
-          Response.Free;
         end;
 
       end;
 
-    end;
+    until (Cnt > 1);
 
-    sleep(100);
-
-  until (Cnt > 1000);
-
-  Socket.CloseSocket;
-  Socket.Free;
+  finally
+    Socket.CloseSocket;
+    Socket.Free;
+    Response.Free;
+  end;
 
 end;
 
 function TUPnP.IsUPnPAvailable: boolean;
 begin
   Result := FControlURL <> '';
-end;
-
-function TUPnP.GetLastResultCode: integer;
-begin
-  Result := FResultCode;
-end;
-
-function TUPnP.GetLastResponse: string;
-begin
-  Result := FResponse;
 end;
 
 function TUPnP.GetInternalIP: string;
@@ -230,7 +221,7 @@ begin
 
 end;
 
-function TUPnP.GetStatusInfo(out ConnectionStatus: String; out LastError: String; out Uptime: Integer): Boolean;
+function TUPnP.GetStatusInfo(out ConnectionStatus: string; out LastError: string; out Uptime: integer): boolean;
 var
   SoapRequest: string;
 begin
@@ -245,9 +236,9 @@ begin
 
   ExecuteSoapAction('GetStatusInfo', SoapRequest);
 
-  ConnectionStatus :=  GetStringBetweenAndStrip(FResponse, '<NewConnectionStatus>', '</NewConnectionStatus>');
-  LastError :=  GetStringBetweenAndStrip(FResponse, '<NewLastConnectionError>', '</NewLastConnectionError>');
-  Uptime :=  StrToIntDef(GetStringBetweenAndStrip(FResponse, '<NewUptime>', '</NewUptime>'), 0);
+  ConnectionStatus := GetStringBetweenAndStrip(FResponse, '<NewConnectionStatus>', '</NewConnectionStatus>');
+  LastError := GetStringBetweenAndStrip(FResponse, '<NewLastConnectionError>', '</NewLastConnectionError>');
+  Uptime := StrToIntDef(GetStringBetweenAndStrip(FResponse, '<NewUptime>', '</NewUptime>'), 0);
 
   Result := FResultCode = 200;
 
@@ -300,7 +291,7 @@ begin
 
 end;
 
-function FillPortMapping(Found1: String): TPortMapping;
+function FillPortMapping(Found1: string): TPortMapping;
 begin
   Result.RemoteHost := GetStringBetweenAndStrip(Found1, '<NewRemoteHost>', '</NewRemoteHost>');
   Result.ExternalPort := StrToIntDef(GetStringBetweenAndStrip(Found1, '<NewExternalPort>', '</NewExternalPort>'), 0);
