@@ -8,16 +8,16 @@
       <Unit>
         <Filename Value="upnptest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="31"/>
-        <CursorPos Y="49"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="15" Y="15"/>
         <UsageCount Value="25"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="upnplib.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
         <UsageCount Value="25"/>
         <Bookmarks Count="1">
           <Item0 X="2" Y="244" ID="1"/>
@@ -58,10 +58,39 @@
         <UsageCount Value="10"/>
       </Unit>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="-1"/>
-    </General>
-    <JumpHistory HistoryIndex="-1"/>
+    <JumpHistory HistoryIndex="7">
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="47" TopLine="39"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="79" Column="50" TopLine="75"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="41" TopLine="14"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="43" Column="129" TopLine="35"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="48" Column="9" TopLine="28"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="12" TopLine="2"/>
+      </Position>
+      <Position>
+        <Filename Value="upnptest.lpr"/>
+        <Caret Line="15" TopLine="5"/>
+      </Position>
+    </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes ActiveMode=""/>

@@ -1,6 +1,22 @@
 # upnp
 UPnP implementation for FPC
 
+Sample
+
+    UPnP := TUPnP.Create('0.0.0.0');
+
+    if UPnP.IsUPnPAvailable then
+    begin
+      Writeln('UPnP device is available at ' + UPnP.ControlURL);
+
+
+    // Set a port mapping
+    if UPnP.SetPortMapping(UPnP.InternalIP, 8081, 8000, 'TCP') then // use own computer IP
+
+    // Delete a port mapping
+    if UPnP.DeletePortMapping(8000) then
+
+
 Example output
 
     UPnP is available.
