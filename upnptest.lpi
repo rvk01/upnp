@@ -24,11 +24,6 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
-    <RequiredPackages>
-      <Item>
-        <PackageName Value="laz_synapse"/>
-      </Item>
-    </RequiredPackages>
     <Units>
       <Unit>
         <Filename Value="upnptest.lpr"/>

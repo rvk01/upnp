@@ -3,7 +3,6 @@ program upnptest;
 {$mode objfpc}{$H+}
 
 uses
-  SynaUtil,
   upnplib,
   SysUtils;
 
@@ -37,7 +36,6 @@ var
 
   end;
 
-
 var
   Status: string;
   LastError: string;
@@ -58,7 +56,7 @@ begin
       Writeln('External IP: ', UPnP.ExternalIP);
       Writeln('Status: ', Status);
       Writeln('Last error: ', LastError);
-      Writeln('Uptime router: ', format('%d days, %d hours %d minutes and %d seoconds',
+      Writeln('Uptime router: ', format('%d days %d hours %d minutes and %d seconds',
         [Uptime div 86400, (Uptime div 3600) mod 24, (Uptime div 60) mod 60, Uptime mod 60]));
       Writeln;
 
