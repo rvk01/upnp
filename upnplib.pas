@@ -5,7 +5,7 @@ unit upnplib;
 interface
 
 uses
-  Classes, SysUtils, fphttpclient, sockets, {$IFDEF WINDOWS} Winsock {$ELSE} netdb {$ENDIF};
+  Classes, SysUtils, fphttpclient, sockets, {$IFDEF WINDOWS} Winsock {$ELSE} unixtype, netdb {$ENDIF};
 
 type
   TPortMapping = record
@@ -78,20 +78,24 @@ constructor TUPnP.Create(RouterIP: string = ''); // '' = discover
 var
   Socket: TSocket;
   DestAddr: TInetSockAddr;
-  ListenAddr: TInetSockAddr;
+  // ListenAddr: TInetSockAddr;
   SenderAddrLen: tsocklen;
   SenderAddr: TInetSockAddr;
   MessageLen: SizeInt;
   S, Location, Service: string;
   Response: TStringList;
   Cnt: integer;
-  BroadcastEnable, Timeout: longint;
+  BroadcastEnable: longint;
+{$ifdef windows}
+  Timeout: DWord;
+{$else}
+  Timeout: ttimeval;
+{$endif}
 begin
 
   Cnt := 0; // timeout counter, max 2 x 3 seconds
   if (RouterIP = '0.0.0.0') or (RouterIP = '') then
     RouterIP := '255.255.255.255'; // discover
-
 
   S := 'M-SEARCH * HTTP/1.1' + CRLF +
     'HOST: 239.255.255.250:1900' + CRLF +
@@ -101,18 +105,27 @@ begin
 
   Response := TStringList.Create;
   Socket := fpSocket(AF_INET, SOCK_DGRAM, 0);
-  // Socket := TUDPBlockSocket.Create;
+
   try
 
     BroadcastEnable := 1;
-    Timeout := 3000;
     fpSetSockOpt(Socket, SOL_SOCKET, SO_BROADCAST, @BroadcastEnable, SizeOf(BroadcastEnable));
-    fpSetSockOpt(Socket, SOL_SOCKET, SO_RCVTIMEO, @Timeout, SizeOf(Timeout));
 
+    {$IFDEF WINDOWS}
+    Timeout := 3000;
+    fpsetsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, @Timeout, sizeof(Timeout));
+    {$ELSE}
+    Timeout.tv_sec:=3;
+    Timeout.tv_usec:=0;
+    fpsetsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, @Timeout, sizeof(Timeout));
+    {$ENDIF}
+
+    {
     ListenAddr.sin_family := AF_INET;
     ListenAddr.sin_port := htons(1900);
     ListenAddr.sin_addr := StrToNetAddr('0.0.0.0');
     fpbind(Socket, @ListenAddr, SizeOf(ListenAddr));
+    }
 
     DestAddr.sin_family := AF_INET;
     DestAddr.sin_port := htons(1900);
