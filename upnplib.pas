@@ -126,7 +126,6 @@ begin
     ListenAddr.sin_addr := StrToNetAddr('0.0.0.0');
     fpbind(Socket, @ListenAddr, SizeOf(ListenAddr));
     }
-
     DestAddr.sin_family := AF_INET;
     DestAddr.sin_port := htons(1900);
     DestAddr.sin_addr := StrToNetAddr('255.255.255.255');
