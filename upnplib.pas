@@ -140,11 +140,15 @@ begin
       SetLength(S, 2048); // Max UDP Datagram length
       SenderAddrLen := SizeOf(SenderAddr);
       MessageLen := fprecvfrom(Socket, @S[1], Length(S), 0, @SenderAddr, @SenderAddrLen);
-      SetLength(S, MessageLen);
 
-      DebugProc('M-SEARCH found the following: ' + #13#10 + S);
+      if MessageLen >= 0 then // valid message
+      begin
+        SetLength(S, MessageLen);
+        DebugProc(format('M-SEARCH found the following (length %d bytes): '#13#10'%s', [MessageLen, S]));
+      end else
+        DebugProc('M-SEARCH nothing found yet');
 
-      if MessageLen > 0 then
+      if MessageLen > 0 then // at least some data
       begin
         // Found one. Reset timeout counter, if this is not the one then wait for 3 seconds again
         Cnt := 0;
@@ -190,7 +194,7 @@ begin
 
       end;
 
-    until (Cnt > 3);
+    until (Cnt > 3000);
 
   finally
     // Socket.CloseSocket;
