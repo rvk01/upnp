@@ -36,14 +36,18 @@ var
 
   end;
 
+procedure DebugProc(Value: String);
+begin
+  Writeln('  debug --> ' + Value);
+end;
+
 var
   Status: string;
   LastError: string;
   Uptime: integer;
 begin
-  UPnP := TUPnP.Create('0.0.0.0');
+  UPnP := TUPnP.Create('0.0.0.0', @DebugProc);
   try
-
 
     if UPnP.IsUPnPAvailable then
     begin

@@ -22,6 +22,9 @@ type
   TPortMappings = array of TPortMapping;
 
 type
+  DebugProcType = procedure(Value: String);
+
+type
   TUPnP = class
   private
     FBaseURL: string;
@@ -34,7 +37,7 @@ type
     function GetExternalIP: string;
     procedure ExecuteSoapAction(const Action, SoapRequest: string);
   public
-    constructor Create(RouterIP: string = '');
+    constructor Create(RouterIP: string = ''; DebugProc: DebugProcType = nil);
     function IsUPnPAvailable: boolean;
     function GetStatusInfo(out ConnectionStatus: string; out LastError: string; out Uptime: integer): boolean;
     function SetPortMapping(const InternalIP: string; InternalPort, ExternalPort: integer; Protocol: string = 'TCP'; Description: string = ''): boolean;
@@ -74,7 +77,7 @@ end;
 const
   CRLF = #13#10;
 
-constructor TUPnP.Create(RouterIP: string = ''); // '' = discover
+constructor TUPnP.Create(RouterIP: string = ''; DebugProc: DebugProcType = nil); // '' = discover
 var
   Socket: TSocket;
   DestAddr: TInetSockAddr;
@@ -138,6 +141,8 @@ begin
       SenderAddrLen := SizeOf(SenderAddr);
       MessageLen := fprecvfrom(Socket, @S[1], Length(S), 0, @SenderAddr, @SenderAddrLen);
       SetLength(S, MessageLen);
+
+      DebugProc('M-SEARCH found the following: ' + #13#10 + S);
 
       if Pos('LOCATION: ', uppercase(S)) > 0 then
       begin
