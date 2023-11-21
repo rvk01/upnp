@@ -131,7 +131,7 @@ begin
     }
     DestAddr.sin_family := AF_INET;
     DestAddr.sin_port := htons(1900);
-    DestAddr.sin_addr := StrToNetAddr('255.255.255.255');
+    DestAddr.sin_addr := StrToNetAddr(RouterIP); // was 255.255.255.255
     fpSendTo(Socket, @S[1], Length(S), 0, @DestAddr, SizeOf(DestAddr));
 
     repeat
@@ -187,7 +187,7 @@ begin
 
       end;
 
-    until (Cnt > 1);
+    until (Cnt > 3);
 
   finally
     // Socket.CloseSocket;
