@@ -162,6 +162,8 @@ begin
 
         S := TFPHttpClient.SimpleGet(Location);
 
+        DebugProc(format('M-SEARCH result:'#13#10'%s', [S]));
+
         FBaseURL := Location; // take base of Location for control
         while (FBaseURL <> '') and (Location[Length(FBaseURL)] <> '/') do Delete(FBaseURL, Length(FBaseURL), 1);
         if FBaseURL <> '' then Delete(FBaseURL, Length(FBaseURL), 1);
@@ -194,7 +196,7 @@ begin
 
       end;
 
-    until (Cnt > 3000);
+    until (Cnt > 3);
 
   finally
     // Socket.CloseSocket;
