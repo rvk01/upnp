@@ -46,7 +46,7 @@ var
   LastError: string;
   Uptime: integer;
 begin
-  UPnP := TUPnP.Create('192.168.2.1', @DebugProc);
+  UPnP := TUPnP.Create('0.0.0.0', @DebugProc);
   try
 
     if UPnP.IsUPnPAvailable then

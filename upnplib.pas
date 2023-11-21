@@ -144,11 +144,14 @@ begin
 
       DebugProc('M-SEARCH found the following: ' + #13#10 + S);
 
+      if MessageLen > 0 then
+      begin
+        // Found one. Reset timeout counter, if this is not the one then wait for 3 seconds again
+        Cnt := 0;
+      end;
+
       if Pos('LOCATION: ', uppercase(S)) > 0 then
       begin
-
-        // Found one. Reset timeout counter, if this is not the one then wait
-        Cnt := 0;
 
         Location := Copy(S, Pos('LOCATION:', uppercase(S)) + 9);
         Location := Trim(Copy(Location, 1, Pos(CRLF, Location) - 1));
@@ -176,7 +179,7 @@ begin
                 S := GetStringBetweenAndStrip(Service, '<controlURL>', '</controlURL>');
                 FControlURL := FBaseURL + S;
 
-                Cnt := 99;
+                Cnt := 99; // no need to wait any longer. We've got the router
                 break; // only break on correct service
 
               end;
